@@ -1,0 +1,54 @@
+//Smart walking Stick
+
+#define vibrator 3
+#define buzzer_Out 4
+
+#define echo 8
+#define trig 9
+
+float  duration; // time taken by the pulse to return back
+float  distance; // oneway distance travelled by the pulse
+
+void setup() 
+	{
+    	pinMode(buzzer_Out, OUTPUT);
+    	pinMode(vibrator, OUTPUT);
+    	pinMode(trig, OUTPUT);
+    	pinMode(echo, INPUT);
+    	Serial.begin(9600);
+  	}
+  
+void loop() 
+	{
+    	time_Measurement();
+    	distance = duration * (0.0343) / 2;// calculate the oneway distance travelled by the pulse
+    	
+	if(distance<300 && distance>200){digitalWrite(buzzer_Out,HIGH);delay(150);
+					digitalWrite(vibrator,HIGH);delay(150);
+					digitalWrite(buzzer_Out,LOW);delay(150);
+					digitalWrite(vibrator,LOW);delay(150);}
+
+	if(distance<200 && distance>100){digitalWrite(buzzer_Out,HIGH);delay(100);
+					digitalWrite(vibrator,HIGH);delay(100);
+					digitalWrite(buzzer_Out,LOW);delay(100);
+					digitalWrite(vibrator,LOW);delay(100);}
+
+	if(distance<100){digitalWrite(buzzer_Out,HIGH);delay(50);
+			digitalWrite(vibrator,HIGH);delay(50);
+			digitalWrite(buzzer_Out,LOW);delay(50);
+			digitalWrite(vibrator,LOW);delay(50);}
+  	}
+
+void time_Measurement()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(trig, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(trig, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(trig, LOW);
+  
+    	duration = pulseIn(echo, HIGH);
+}
+

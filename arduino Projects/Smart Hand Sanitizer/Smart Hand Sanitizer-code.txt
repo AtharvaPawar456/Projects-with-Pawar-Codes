@@ -1,0 +1,78 @@
+//Smart Hand Sanitizer
+
+#define PIR_In 2
+#define buzzer_Out 4
+
+#define echo 12
+#define trig 11
+
+float  duration; // time taken by the pulse to return back
+float  distance; // oneway distance travelled by the pulse
+
+#include <Servo.h>
+Servo myservo;
+int pos = 0;
+
+void setup() 
+	{
+    	pinMode(buzzer_Out, OUTPUT);
+    	pinMode(PIR_In, INPUT);
+    	pinMode(trig, OUTPUT);
+    	pinMode(echo, INPUT);
+    	Serial.begin(9600);
+	myservo.attach(3);  				
+  	}
+  
+void loop() 
+	{
+    	time_Measurement();
+    	distance = duration * (0.0343) / 2;
+// calculate the oneway distance travelled by the pulse
+    	
+	if(distance>200)	{digitalWrite(buzzer_Out,HIGH);}
+	else			{digitalWrite(buzzer_Out,LOW);}
+
+	check_For_Hand();
+  	}
+
+void time_Measurement()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(trig, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(trig, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(trig, LOW);
+  
+    	duration = pulseIn(echo, HIGH);
+}
+void check_For_Hand()
+  	{
+    	boolean sensorvalue= digitalRead(PIR_In);
+    	if(sensorvalue==1)
+     		{
+ 
+//sanitizer would sprinkel 2 times...
+
+		for (pos = 0; pos <= 180; pos += 1) { 	// goes from 0 degrees to 180 degrees
+    							// in steps of 1 degree
+    			myservo.write(pos);             // tell servo to go to position in variable 'pos'
+    			delay(10);}                     // wait for the servo to reach the position
+  		
+		for (pos = 180; pos >= 0; pos -= 1) { 	// goes from 180 degrees to 0 degrees
+    			myservo.write(pos);             // tell servo to go to position in variable 'pos'
+      			delay(10);}
+
+		for (pos = 0; pos <= 180; pos += 1) { 	// goes from 0 degrees to 180 degrees
+    							// in steps of 1 degree
+    			myservo.write(pos);             // tell servo to go to position in variable 'pos'
+    			delay(10);}                     // wait for the servo to reach the position
+  		
+		for (pos = 180; pos >= 0; pos -= 1) { 	// goes from 180 degrees to 0 degrees
+    			myservo.write(pos);             // tell servo to go to position in variable 'pos'
+      			delay(10);}
+     		}
+     		delay(10);  
+		  
+    	}

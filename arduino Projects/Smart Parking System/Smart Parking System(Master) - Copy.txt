@@ -1,0 +1,90 @@
+//Master code parking system-master
+
+#include <LiquidCrystal.h> //LCD library  
+#include <Wire.h>
+
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);//lcd(RS,EN,D4,D5,D6,D7) 
+//String receive = "";
+char response[]="";
+void setup(){
+  Wire.begin();  // join i2c bus (address optional for master)
+      Serial.begin(9600);
+      lcd.begin(16, 2);
+    }
+  
+void loop() 
+  {
+  Wire.requestFrom(8, 6);    // request 6 bytes from slave device #8
+    while (Wire.available()) 
+  { // slave may send less than requested     
+      int i;
+      for(i=0;i<7;i++)
+        {char c = Wire.read(); // receive a byte as character
+          response[i] = c;
+        }
+      display_distance(); 
+    }
+}
+void display_distance()
+{     
+lcd.clear();
+lcd.setCursor(0, 0);
+lcd.print("_P1_P2_P3_P4_P5_");
+
+//E = Empty slot ; F = Full slot
+
+//char char_array[6];
+//char_array[] = response[];
+
+char s1 = response[1];
+char s2 = response[2];
+char s3 = response[3];
+char s4 = response[4];
+char s5 = response[5];
+
+Serial.print("_P1_P2_P3_P4_P5_");
+Serial.print(response[1]);
+//Serial.print("________________");
+Serial.println();
+/*
+lcd.setCursor(1, 1);lcd.print("_");
+lcd.setCursor(2, 1);lcd.print("_");
+lcd.setCursor(4, 1);lcd.print("_");
+lcd.setCursor(5, 1);lcd.print("_");
+lcd.setCursor(7, 1);lcd.print("_");
+lcd.setCursor(8, 1);lcd.print("_");
+lcd.setCursor(10, 1);lcd.print("_");
+lcd.setCursor(11, 1);lcd.print("_");
+lcd.setCursor(13, 1);lcd.print("_");
+lcd.setCursor(14, 1);lcd.print("_");
+lcd.setCursor(16, 1);lcd.print("_");
+*/
+if(s1 == 'a'){lcd.setCursor(3, 1);lcd.print("F");}
+if(s1 == 'b'){lcd.setCursor(3, 1);lcd.print("E");}
+
+if(s2 == 'c'){lcd.setCursor(6, 1);lcd.print("F");}
+if(s2 == 'd'){lcd.setCursor(6, 1);lcd.print("E");}
+
+if(s3 == 'e'){lcd.setCursor(9, 1);lcd.print("F");}
+if(s3 == 'f'){lcd.setCursor(9, 1);lcd.print("E");}
+
+if(s4 == 'g'){lcd.setCursor(12, 1);lcd.print("F");}
+if(s4 == 'h'){lcd.setCursor(12, 1);lcd.print("E");}
+
+if(s5 == 'i'){lcd.setCursor(15, 1);lcd.print("F");}
+if(s5 == 'j'){lcd.setCursor(15, 1);lcd.print("E");}
+
+}
+
+//_P1_P2_P3  _ P 4 _ P 5 _
+//123456789 10111213141516
+//__E__E__E  _ _ E _ _ E _
+
+
+
+
+  //if(response == Pbdfhj){
+      //  lcd.setCursor(0, 1);
+      //  lcd.print("__E__E__E__E__E_");//_E_F_E_F_E_ ...E=empty,F=full
+      //  delay(1000);
+    //  }

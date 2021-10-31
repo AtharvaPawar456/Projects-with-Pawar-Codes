@@ -1,0 +1,71 @@
+// Smart Parking Gate
+
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+
+#define echo 7
+#define trig 6
+
+float  duration; // time taken by the pulse to return back
+float  distance; // oneway distance travelled by the pulse
+
+#include <Servo.h>
+Servo myservo;
+int pos = 0;
+      
+void setup() 
+	{
+    Serial.begin(9600);
+    lcd.begin(16, 2);
+    pinMode(trig, OUTPUT);
+    pinMode(echo, INPUT);
+    Serial.begin(9600);
+	myservo.attach(3); 
+  	}
+
+void loop() 
+	{
+    time_Measurement();
+	distance = duration * (0.0343) / 2;
+    display();
+	if(distance<200){
+    for (pos = 0; pos <= 180; pos += 1) {myservo.write(pos);delay(10);}
+	delay(4000);                   
+	for (pos = 180; pos >= 0; pos -= 1) {myservo.write(pos);delay(10);}
+			}
+	else{delay(10);}
+  	}
+  
+void time_Measurement()
+{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(trig, LOW);
+    delayMicroseconds(2);
+  
+    digitalWrite(trig, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trig, LOW);
+  
+    duration = pulseIn(echo, HIGH);
+}
+
+  
+void display()
+  	{
+if(distance<200){
+    lcd.setCursor(0, 0);
+    Serial.print("Welcome ! Smart Car Parking");
+    Serial.println();
+    lcd.print("Gate is Opening");
+    delay(500);
+  	}
+else{   
+  	lcd.setCursor(0, 0);
+    Serial.print("Welcome ! Smart Parking Gate");
+    Serial.println();
+    lcd.print("Welcome to Smart");
+    lcd.setCursor(5, 1);
+    lcd.print("Parking Gate");
+    delay(500);
+}
+}

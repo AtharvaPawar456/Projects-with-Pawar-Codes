@@ -1,0 +1,68 @@
+//Water level controlling system
+//tank is of 320 liter
+#define echo 8
+#define trig 9
+
+#define red 5
+#define blue 4
+#define green 3
+
+#define motor 2
+
+float  duration; // time taken by the pulse to return back
+float  distance; // oneway distance travelled by the pulse
+
+void setup() 
+	{
+    	pinMode(trig, OUTPUT);
+    	pinMode(echo, INPUT);
+	pinMode(red,OUTPUT);	//red
+	pinMode(blue,OUTPUT);	//blue
+	pinMode(green, OUTPUT);	//green
+	pinMode(motor, OUTPUT);	//motor pump
+    	Serial.begin(9600);
+}
+void loop() 
+	{
+    	time_Measurement();
+    	distance = duration * (0.0343) / 2;// calculate the oneway distance travelled by the pulse   
+    	led_d(); 
+  	}
+  
+void time_Measurement()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(trig, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(trig, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(trig, LOW);
+  
+    	duration = pulseIn(echo, HIGH);
+  	}
+void led_d(){
+	if(distance<150){
+		digitalWrite(red,LOW);
+		digitalWrite(blue,LOW);
+		digitalWrite(green,HIGH);
+		}
+	if(distance<300 && distance>150){
+		digitalWrite(red,LOW);
+		digitalWrite(blue,HIGH);
+		digitalWrite(green,LOW);
+		}
+	if(distance>300){
+		digitalWrite(red,HIGH);
+		digitalWrite(blue,LOW);
+		digitalWrite(green,LOW);
+		}
+
+	if(distance>=50 && distance<300){
+		digitalWrite(motor,HIGH);
+		}
+  	if(distance>300){
+		digitalWrite(motor,LOW);
+		}
+
+}

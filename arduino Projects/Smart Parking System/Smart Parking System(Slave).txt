@@ -1,0 +1,195 @@
+//slave		parking system-slave
+
+#include <Wire.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+#define P1e 2
+#define P1t 5
+
+#define P2e 4
+#define P2t 6
+
+#define P3e 7
+#define P3t 9
+
+#define P4e 12
+#define P4t 10
+
+#define P5e 13
+#define P5t 11
+
+#define LENGTH 6
+
+
+float  P1dur;//duration
+float  P1dis;//distance
+
+
+float  P2dur;//duration
+float  P2dis;//distance
+
+
+float  P3dur;//duration
+float  P3dis;//distance
+
+
+float  P4dur;//duration
+float  P4dis;//distance
+
+
+float  P5dur;//duration
+float  P5dis;//distance
+
+String msg = "";
+
+void setup() 
+	{
+  
+    	pinMode(P1t, OUTPUT);
+    	pinMode(P1e, INPUT);
+
+    	pinMode(P2t, OUTPUT);
+    	pinMode(P2e, INPUT);
+
+    	pinMode(P3t, OUTPUT);
+    	pinMode(P3e, INPUT);
+
+    	pinMode(P4t, OUTPUT);
+    	pinMode(P4e, INPUT);
+
+    	pinMode(P5t, OUTPUT);
+    	pinMode(P5e, INPUT);
+
+	Wire.begin(8);                // join i2c bus with address #8
+	Wire.onRequest(requestEvent); // register event
+
+    	Serial.begin(9600);
+  	}
+  
+void loop() 
+	{
+    	time_MeasurementP1();
+    	P1dis = P1dur * (0.0343) / 2;
+	// calculate the oneway distance travelled by the pulse    
+
+    	time_MeasurementP2();
+    	P2dis = P2dur * (0.0343) / 2;
+
+    	time_MeasurementP3();
+    	P3dis = P3dur * (0.0343) / 2;
+
+    	time_MeasurementP4();
+    	P4dis = P4dur * (0.0343) / 2;
+
+    	time_MeasurementP5();
+    	P5dis = P5dur * (0.0343) / 2;
+
+
+  	}
+void requestEvent() 
+{
+
+msg += 'P';
+
+if(P1dis<=120)	{msg += 'a';} //full
+if(P1dis>=120)	{msg += 'b';} //empty
+
+if(P2dis<=120)	{msg += 'c';} //f
+if(P2dis>=120)	{msg += 'd';} //e
+
+if(P3dis<=120)	{msg += 'e';} //f
+if(P3dis>=120)	{msg += 'f';} //e
+
+if(P4dis<=120)	{msg += 'g';} //f
+if(P4dis>=120)	{msg += 'h';} //e
+
+if(P5dis<=120)	{msg += 'i';} //f
+if(P5dis>=120)	{msg += 'j';} //e
+
+
+int str_len = msg.length() + 1;
+ 
+char char_array[str_len];
+ 
+msg.toCharArray(char_array, str_len);
+
+
+
+Serial.println(char_array);
+
+Wire.write(char_array);
+
+msg = "";
+
+Serial.println(char_array);
+
+}
+
+
+
+void time_MeasurementP1()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(P1t, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(P1t, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(P1t, LOW);
+  
+    	P1dur = pulseIn(P1e, HIGH);
+  	}
+
+void time_MeasurementP2()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(P2t, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(P2t, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(P2t, LOW);
+  
+    	P2dur = pulseIn(P2e, HIGH);
+  	}
+
+void time_MeasurementP3()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(P3t, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(P3t, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(P3t, LOW);
+  
+    	P3dur = pulseIn(P3e, HIGH);
+  	}
+
+void time_MeasurementP4()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(P4t, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(P4t, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(P4t, LOW);
+  
+    	P4dur = pulseIn(P4e, HIGH);
+  	}
+
+void time_MeasurementP5()
+  	{ //function to measure the time taken by the pulse to return back
+    	
+	digitalWrite(P5t, LOW);
+    	delayMicroseconds(2);
+  
+    	digitalWrite(P5t, HIGH);
+    	delayMicroseconds(10);
+    	digitalWrite(P5t, LOW);
+  
+    	P5dur = pulseIn(P5e, HIGH);
+  	}
