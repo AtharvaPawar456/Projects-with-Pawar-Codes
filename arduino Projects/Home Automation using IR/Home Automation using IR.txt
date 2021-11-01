@@ -1,0 +1,62 @@
+// Home Automation using IR
+
+#include <IRremote.h>
+int RECV_PIN = 3; 	//This Pin should be PWM
+IRrecv irrecv(RECV_PIN);
+decode_results results;
+
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+ 
+#define bulb 6
+
+#define motor 4
+      
+void setup() 
+	{
+    	Serial.begin(9600);
+    	lcd.begin(16, 2);
+	irrecv.enableIRIn(); // Start the receiver
+
+	pinMode(motor, OUTPUT);	//motor pump
+	pinMode(bulb, OUTPUT);
+  	}
+
+void loop(){
+lcd.setCursor(3,0);
+lcd.print("Smart Home");  
+
+  if (irrecv.decode(&results)) {
+     	switch(results.value)
+      {        
+        	case 16582903:	Serial.println("1"); 	// Button 1
+        			digitalWrite(bulb, HIGH);
+
+				lcd.setCursor(0, 1);
+    				lcd.print("bulb-ON");
+	          		break;
+
+        	case 16615543:  Serial.println("2"); 	// Button 2  
+                        	digitalWrite(bulb, LOW);
+				lcd.setCursor(0, 1);
+    				lcd.print("bulb-OF");
+				break;          
+          
+        	case 16599223:	Serial.println("3");  	// Button 3
+        			digitalWrite(motor, HIGH);
+				lcd.setCursor(8, 1);
+    				lcd.print("Motor-ON");
+				break;
+        
+        	case 16591063: 	Serial.println("4"); 	// Button 4
+                       		digitalWrite(motor, LOW);
+				lcd.setCursor(8, 1);
+    				lcd.print("Motor-OF");
+                        	break;    
+
+        default: Serial.println(results.value);     
+      }  
+    irrecv.resume(); // Receive the next value
+  }
+  
+}
