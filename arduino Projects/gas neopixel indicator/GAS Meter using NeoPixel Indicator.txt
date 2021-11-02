@@ -1,0 +1,51 @@
+//GAS Meter using NeoPixel Indicator
+
+#include <Adafruit_NeoPixel.h>	//neopixel library
+#define PIN 6			//neopixel data pin decleration
+#define Sensor A0		//Gas sensor data pin decleration
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(12, PIN, NEO_GRB + NEO_KHZ800);
+    
+void setup() 
+	{
+      	pinMode(PIN, OUTPUT);	//neopixel data pin declering as output
+	pinMode(A0, INPUT);	//Gas sensor data pin declering as input
+    	Serial.begin(9600);	//display gas sensor value on serial monitor
+
+  	strip.begin();		//neopixel setup
+  	strip.show();		
+  	}
+  
+void loop() 
+	{
+      	digitalWrite(PIN, LOW);	//initial neopixel display is OFF
+    	status_Indicator();	//declaring that in our code we have function 
+  	}
+  
+void status_Indicator()
+  	{
+    	int sensor_In = analogRead(A0);	//read data of gas sensor and store it in variable
+    	Serial.println(sensor_In);	//print gas sensor current data(analog data)
+    
+    	if ( sensor_In >=40  )		//if the contration level of gas increases above 40 then display red light
+    		{
+      		switch_led(strip.Color(255, 0, 0), 0, 12);
+    		}
+    	else if (sensor_In >=25 )	//if the contration level of gas increases above 25 then display red yellow
+    		{
+      		switch_led(strip.Color(255, 255, 0), 0, 12);
+    		} 
+	else				//if the contration level of gas increases below 25 then display red green
+    		{
+      		switch_led(strip.Color(0, 255, 0), 0, 12);
+    		}
+    	delay(10);			//small delay for the sensor(by-default)
+  	}
+
+void switch_led(uint32_t color, int time, int led_num){ 	//function
+  for(uint32_t i=0; i<led_num; i++){
+    strip.setPixelColor(i, color);
+    strip.show();
+    delay(time);
+  }
+}
