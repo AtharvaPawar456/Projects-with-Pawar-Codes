@@ -1,0 +1,32 @@
+//  Automatic Door Opening System
+void setup()
+{
+  pinMode(2, INPUT);//pir sensor input
+  pinMode(3, OUTPUT);// pos
+  pinMode(4, OUTPUT);// neg
+}
+
+void loop()
+{
+    if (digitalRead(2) == 1){
+    digitalWrite(3, HIGH);
+    digitalWrite(4, LOW);
+    delay(500);
+    //increase the delay as per your time required...
+
+    digitalWrite(4, HIGH);
+    digitalWrite(3, LOW);
+    delay(500);
+      
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    delay(10);
+  } 
+  else 
+  {
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    delay(10);
+  }
+  delay(50);
+}
