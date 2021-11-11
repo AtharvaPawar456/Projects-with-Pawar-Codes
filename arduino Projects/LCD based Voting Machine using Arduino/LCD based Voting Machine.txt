@@ -1,0 +1,71 @@
+// LCD based Voting Machine
+
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+
+int inPin_a = 2;
+int inPin_b = 3;
+int inPin_c = 4;
+
+int val_a = 0;
+int val_b = 0;
+int val_c = 0;
+
+int ma = 0;
+int mb = 0;
+      
+void setup(){
+  
+Serial.begin(9600);
+lcd.begin(16, 2);
+Serial.begin(9600);
+pinMode(inPin_a, INPUT);
+pinMode(inPin_b, INPUT);
+pinMode(inPin_c, INPUT);
+  	}
+
+void loop() {
+
+while(1){
+	val_a = digitalRead(inPin_a);
+	val_b = digitalRead(inPin_b);
+	val_c = digitalRead(inPin_c);
+    display();
+
+if (val_a == LOW) {
+	ma += 1;
+	}
+
+if (val_b == LOW) {
+	mb += 1;
+	}
+
+if (val_c == LOW) {
+	displayScore();
+	}
+}
+}
+  
+void display(){
+
+    lcd.setCursor(0, 0);
+    lcd.print("__Voting Machine_");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Esp______Arduino");
+    delay(5);
+}
+
+void displayScore(){
+	lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Esp______Arduino");
+	
+	lcd.setCursor(2, 1);
+    lcd.print(ma);
+
+	lcd.setCursor(13, 1);
+    lcd.print(mb);
+
+    delay(1000);
+}
