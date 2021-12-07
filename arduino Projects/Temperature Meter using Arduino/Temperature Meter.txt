@@ -1,0 +1,39 @@
+// Temperature Meter
+
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+  
+int sensor_Input;
+float temp;
+      
+void setup() 
+	{
+    	Serial.begin(9600);
+    	lcd.begin(16, 2);
+  	}
+void loop() 
+	{
+    	measure_Temp();
+    	display_Temp();
+  	}
+  
+void measure_Temp()
+  	{
+    	sensor_Input = analogRead(A0);
+    	temp = (float)sensor_Input / 1024;
+    	temp = temp * 5;
+    	temp = temp - 0.5;
+    	temp = temp * 100;
+  	}
+  
+void display_Temp()
+  	{
+    	lcd.setCursor(0, 0);
+    	Serial.print("Temp. in Celcius: ");
+    	Serial.print(temp);
+    	Serial.println();
+    	lcd.print("Temp. in Celcius: ");
+    	lcd.setCursor(5, 1);
+    	lcd.print(temp);
+    	delay(500);
+  	}
