@@ -1,0 +1,247 @@
+IoT Problem statement - 1 (jumble code)
+
+void setup() {
+  // put your setup code here, to run once:
+// Public View : https://thingspeak.com/channels/1557000 
+//replace u r serve public link above
+#include <WiFi.h>
+#include <ThingSpeak.h>               // always include thingspeak header file after other header files and custom macros
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+#include <RTClib.h>
+
+#define SECRET_SSID "Wokwi-GUEST"     // replace with your WiFi network name
+#define SECRET_PASS ""                // replace with your WiFi password
+
+#define SECRET_CH_ID u_r_channel_id          // replace 0000000 with your channel number
+#define SECRET_WRITE_APIKEY "u_r_channel_writeAPIk"   // replace XYZ with your channel write API Key
+
+char ssid[] = SECRET_SSID;            // your network SSID (name) 
+char pass[] = SECRET_PASS;            // your network password
+int keyIndex = 0;                     // your network key Index number (needed only for WEP)
+WiFiClient  client;
+
+
+// ----------------------------------------
+// RTC - code
+
+
+// ----------------------------------------
+// Button - code
+#define BUTTON_PIN 19 // GIOP19 pin connected to button
+
+// Variables will change:
+int lastState = HIGH; // the previous state from the input pin
+int currentState;     // the current reading from the input pin
+
+int pumpCounter = false;
+int moistValve = true;
+int pumpStatus = 0;
+
+
+void setup(){ 
+
+  Serial.println("Wokwi running!");
+  pinMode(temppin,INPUT);
+  pinMode(Pump,   OUTPUT);
+  pinMode(Buzzer, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  pinMode(R_pin,  OUTPUT);
+  pinMode(G_pin,  OUTPUT);
+  pinMode(B_pin,  OUTPUT);
+
+  Serial.begin(115200);  //Initialize serial
+  while (!Serial) {; }// wait for serial port to connect. Needed for Leonardo native USB port only
+  lcd.init();  lcd.backlight();
+
+  WiFi.mode(WIFI_STA);  
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+  RTC.begin(); // load the time from your computer.
+  if (! RTC.isrunning()) { Serial.println("RTC is NOT running!");  }
+}
+
+
+
+void loop() 
+{
+  // Connect or reconnect to WiFi
+  if(WiFi.status() != WL_CONNECTED)
+  {
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(SECRET_SSID);
+    while(WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this  line if using open or WEP network
+      Serial.print(".");
+      delay(2000);     
+    } 
+    Serial.println("\nConnected.");
+  }
+
+// ----------------------------------------
+  DateTime now = RTC.now();
+
+
+  // read the state of the switch/button:
+  currentState = digitalRead(BUTTON_PIN);
+
+  if(lastState == LOW && currentState == HIGH){
+    Serial.println("The state changed from LOW to HIGH");
+    pumpCounter = !pumpCounter;
+  }
+
+  if(pumpCounter == true){
+      digitalWrite(Pump, HIGH);
+      digitalWrite(Buzzer, HIGH);
+      moistValve = false;
+      pumpStatus = 1;
+    }
+
+  if(pumpCounter == false){
+      digitalWrite(Pump, LOW);
+      digitalWrite(Buzzer, LOW);
+      moistValve = true;
+      pumpStatus = 0;
+    }
+  lastState = currentState;     // save the last state
+
+  pinval = analogRead(temppin);   
+  pinval = map(pinval,0,4095,0,99);      //measure soil moisture in '%'
+
+  if(moistValve == true){
+    // Serial.println(pinval);
+    if (pinval > 45){
+      digitalWrite(Pump, LOW); 
+      digitalWrite(Buzzer, LOW);
+      RGBled(0,1,0);
+      pumpStatus = 0;
+    }
+    else{    
+      digitalWrite(Pump, HIGH);      
+      digitalWrite(Buzzer, HIGH);   //pink
+      RGBled(0,0,1);
+      pumpStatus = 1;
+      }
+  }
+
+  // RTCdataDisplay();
+  lcd_display(now.hour(),now.minute(),now.second());
+
+// ----------------------------------------
+// IOT - section
+
+
+  if (now.minute() != timePrev){
+    if (field == true){
+      int x = ThingSpeak.writeField(myChannelNumber, 1, pinval, myWriteAPIKey);
+      if(x == 200)  {    Serial.println("Channel - 1 update successful.");  }
+      else  {    Serial.println("Problem updating channel - 1. HTTP error code " + String(x));  }
+      // delay(200); // Wait 10 seconds to update the channel again
+      field = false;
+    }
+
+    // ----------------------------------------
+    else{
+      int y = ThingSpeak.writeField(myChannelNumber, 2, pumpStatus, myWriteAPIKey);
+      if(y == 200)  {    Serial.println("Channel - 2 update successful.");  }
+      else  {    Serial.println("Problem updating channel - 2. HTTP error code " + String(y));      }  
+      // delay(20); // Wait 10 seconds to update the channel again
+      field = true;
+    }
+      timePrev = now.minute();
+  
+  }
+}
+
+
+void lcd_display(int h,int m,int s){
+  unsigned long myChannelNumber = SECRET_CH_ID;
+  const char * myWriteAPIKey = SECRET_WRITE_APIKEY;
+  int temppin=34;
+  float pinval;
+  float temp=0.00;
+  lcd.setCursor(0, 0);
+  lcd.print("PS - 1 :  Plant IoT");
+
+  lcd.setCursor(0,1);
+  lcd.print("Soil Moist: ");
+  lcd.setCursor(14,1);
+  lcd.print(int(pinval));  
+
+
+
+  delay(1000);
+  // lcd.clear(); 
+}
+
+void RGBled(int r, int g, int b){
+  digitalWrite(R_pin, r);
+  digitalWrite(G_pin, g);
+  digitalWrite(B_pin, b);
+}
+
+// void RTCdataDisplay(){
+   DateTime now = RTC.now();
+   // if (now.hour() == TimeHrs && now.minute() == TimeMin && now.second() == TimeSec){}
+
+   // Serial.println();
+   // Serial.print("  Time: ");
+   // Serial.print(now.hour(), DEC);
+   // Serial.print(':');
+   // Serial.print(now.minute(), DEC);
+   // Serial.print(':');
+   // Serial.print(now.second(), DEC);
+   // Serial.println();
+   // Serial.print("-------------------------------------");
+   // Serial.println();
+
+//   lcd.setCursor(0,3);
+//   lcd.print("Time: ");
+//   lcd.setCursor(6,3);
+//   lcd.print(now.hour());
+//   lcd.setCursor(9,3);
+//   lcd.print(now.minute());
+//   lcd.setCursor(13,3);
+//   lcd.print(now.second());
+//   delay(1000);
+// }
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+#define Buzzer 19
+RTC_DS1307 RTC;
+
+
+// ----------------------------------------
+// Buzzer - code
+#define Pump 18
+int timePrev = 0;
+bool field = true;
+
+// ----------------------------------------
+// RGB-led - code
+#define R_pin 23
+#define G_pin 4
+#define B_pin 2
+
+// ----------------------------------------
+// I2C LCD - code
+int lcdColumns = 20;
+int lcdRows = 4;
+LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+
+lcd.setCursor(0,2);
+lcd.print("Relay: ");
+lcd.setCursor(10,2);
+lcd.print(pumpStatus); 
+
+lcd.setCursor(0,3);
+lcd.print("Time: ");
+lcd.setCursor(6,3);
+lcd.print(h);
+lcd.setCursor(9,3);
+lcd.print(m);
+lcd.setCursor(13,3);
+lcd.print(s);
+}
