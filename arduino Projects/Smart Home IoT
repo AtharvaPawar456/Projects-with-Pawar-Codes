@@ -1,204 +1,267 @@
-void setup() {
-  // put your setup code here, to run once:
-#include <WiFi.h>
-#include "ThingSpeak.h" // always include thingspeak header file after other header files and custom macros
+// Cresendo IoTrauma - Stage 2
 
-#include <LiquidCrystal_I2C.h>
+// Thingspeak Server dB Public View: https://thingspeak.com/channels/1921629
+
+
+ThingSpeak.setField(3, ch3);
+ThingSpeak.setField(4, ch4);
+
+// Weather station channel details
+unsigned long weatherStationChannelNumber = 1921629;
+unsigned long myChannelNumber = 1921629;
+const char * myWriteAPIKey = "87JIILFZ88HY6E9D";
+
+// Timer variables
+unsigned long lastTime = 0;
+unsigned long timerDelay = 30000;
+
+
+void ServerMSG(String str1){
+    pinMode(ch1Pin, OUTPUT);
+
+        lcd.setCursor(0, 0);
+        lcd.print("Server Msg: ");
+        lcd.setCursor(0, 1);
+        lcd.print(str1);
+}
+
+
+void LCD_Welcome(String str1,String str2){
+        int statusCode = 0;
+        int field[8] = {1,2,3,4,5,6,7,8};
+        lcd.setCursor(0, 0);
+        lcd.print(str1);
+        lcd.setCursor(0, 1);
+        lcd.print(str2);
+}
+    if (isnan(temp) || isnan(humidity)) {
+      Serial.println("Failed to read from DHT sensor!");
+      return;
+    }
+    // ----------------------------------------
+
 #include <Wire.h>
 
-// I2C LCD - code
+void DisplayConditionMsg(int lcdValue){
+          pinMode(ch3Pin, OUTPUT);
+          pinMode(ch4Pin, OUTPUT);
+      // Connect or reconnect to WiFi
+        if(WiFi.status() != WL_CONNECTED){
+          Serial.print("Attempting to connect to SSID: ");
+          Serial.println("Wokwi");
+          while(WiFi.status() != WL_CONNECTED){
+            WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+            Serial.print(".");
+            delay(5000);     
+          } 
+          LCD_Welcome("WiFi","Connected");
+          delay(1000);
+          lcd.clear();
+          Serial.println("\nConnected");
+        }
+        lcd.clear();
+        switch(lcdValue){
+          case 1:
+            ServerMSG("welcome");
+            break;
+    
+          case 2:
+            ServerMSG("Hello");
+            break;
+    
+          case 3:
+            ServerMSG("Hi");
+            break;
+    
+          case 4:
+            ServerMSG("How R U");
+            break;
+    
+          case 5:
+            ServerMSG("I am Alex");
+            break;
+    
+          case 6:
+            ServerMSG("I Am a AI Bot !!!");
+            break;
+   }
+  int ch1 = 0;
+  int ch2 = 0;
+  int ch3 = 0;
+  int ch4 = 0;
+  // int ch5 = 0;
+  int _lock = 0;
+  int lcdValue = 0;
+  int buzzer = 0;
+}
 
+pinMode(ch2Pin, OUTPUT);
 
 char ssid[] = "Wokwi-GUEST";   // your network SSID (name) 
 char pass[] = "";   // your network password
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
 WiFiClient  client;
 
-// Weather station channel details
-unsigned long weatherStationChannelNumber = 1921629;
+  pinMode(lockPin, OUTPUT);
 
-int statusCode = 0;
-int field[8] = {1,2,3,4,5,6,7,8};
-
-
-
-
-
-void ServerMSG(String str1){
-        lcd.setCursor(0, 0);
-        lcd.print("Server Msg: ");
-        
-        lcd.setCursor(0, 1);
-        lcd.print(str1);
-        
-        int lcdColumns = 20;
-        int lcdRows = 4;
-        LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
-
-        #define ch1Pin 23
-        #define ch2Pin 19
-        #define ch3Pin 18
-        #define ch4Pin 4
-        #define ch5Pin 13
-        #define lockPin 27
-        #define buzzerPin 26
-}
-
-void LCD_Welcome(String str1,String str2){
-        lcd.setCursor(0, 0);
-        lcd.print(str1);
-
-        int ch1 = 0;
-        int ch2 = 0;
-        int ch3 = 0;
-        int ch4 = 0;
-        int ch5 = 0;
-        int lock = 0;
-        int lcdValue = 0;
-        int buzzer = 0;
-        
-        lcd.setCursor(0, 1);
-        lcd.print(str2);
-}
 
 void setup() {
   Serial.begin(115200);      // Initialize serial 
-
-
-
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo native USB port only
-  }
+  // Pin Mode declaration
   
-  WiFi.mode(WIFI_STA);
-  
-  ThingSpeak.begin(client);  // Initialize ThingSpeak
+  // pinMode(ch5Pin, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  dht.begin();
 
-  lcd.init();  lcd.backlight();
-
-  // Connect or reconnect to WiFi
-  if(WiFi.status() != WL_CONNECTED){
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println("Wokwi");
-    while(WiFi.status() != WL_CONNECTED){
-      WiFi.begin(ssid, pass); // Connect to WPA/WPA2 network. Change this line if using open or WEP network
-      Serial.print(".");
-      delay(5000);     
-    } 
-    LCD_Welcome("WiFi","Connected");
-    delay(1000);
-    lcd.clear();
-    Serial.println("\nConnected");
-  }
+  while (!Serial) {  ;} 
+  // wait for serial port to connect. Needed for Leonardo native USB port only
+  // some code from native 
   LCD_Welcome("Welcome at","Smart Home");
   delay(1000);
   lcd.clear();
 }
 
+  WiFi.mode(WIFI_STA);
+  ThingSpeak.begin(client);  // Initialize ThingSpeak
+  lcd.init();  lcd.backlight();
+
+
 void loop() {
-    
+  #define ch1Pin 23
+  #define ch2Pin 19
+  #define ch3Pin 18
+  #define ch4Pin 4
+  // #define ch5Pin 13
+  #define lockPin 13
+  #define buzzerPin 26
+
+float Prevtemp = 0;
+  void loop() {
+    delay(500);
+    digitalWrite(LED,HIGH);
+    delay(500);
+    digitalWrite(LED,LOW);
+        else{
+          int y = ThingSpeak.writeField(myChannelNumber, 2, pumpStatus, myWriteAPIKey);
+          if(y == 200)  {    Serial.println("Channel - 2 update successful.");  }
+          else  {    Serial.println("Problem updating channel - 2. HTTP error code " + String(y));      }  
+          // delay(20); // Wait 10 seconds to update the channel again
+          field = true;
+        }
+    #include <LiquidCrystal_I2C.h>
+  }
+  // I2C LCD - code
+  int lcdColumns = 20;
+  int lcdRows = 4;
+  LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);  
+
+
+
     // Read and store all the latest field values, location coordinates, status message, and created-at timestamp
-    // use ThingSpeak.readMultipleFields(channelNumber, readAPIKey) for private channels
+    // use 
+    ThingSpeak.readMultipleFields(channelNumber, readAPIKey) 
+    // for private channels 
     statusCode = ThingSpeak.readMultipleFields(weatherStationChannelNumber);
     
     if(statusCode == 200)
     {
       // Fetch the stored data
 
-      case 2:
-        ServerMSG("Hello");
-        break;
-
-      Serial.println("Ch1: " + String(ch1));
-      Serial.println("Ch2: " + String(ch2));
-      Serial.println("Ch3: " + String(ch3));
-      Serial.println("Ch4: " + String(ch4));
-      Serial.println("Ch5: " + String(ch5));
-
-      case 3:
-        ServerMSG("Hi");
-        break;
-
-      case 4:
-        ServerMSG("How R U");
-        break;
-      
-
-      Serial.println("Lock: " + String(lock));
-      Serial.println("Lcd Value: " + String(lcdValue));
-      Serial.println("Buzzer: " + String(buzzer));
-//      Serial.println("Created at, if any (YYYY-MM-DD hh:mm:ss): " + createdAt);
-    }
-    else{
-      Serial.println("Problem reading channel. HTTP error code " + String(statusCode));
-      
-      // Fetch the stored data
-      
       ch1 = ThingSpeak.getFieldAsInt(field[0]); // Field 1
       ch2 = ThingSpeak.getFieldAsInt(field[1]); // Field 2
       ch3 = ThingSpeak.getFieldAsInt(field[2]); // Field 3
       ch4 = ThingSpeak.getFieldAsInt(field[3]); // Field 4
-      ch5 = ThingSpeak.getFieldAsInt(field[4]); // Field 5
-      lock = ThingSpeak.getFieldAsInt(field[5]); // Field 6
+//      ch5 = ThingSpeak.getFieldAsInt(field[4]); // Field 5
+      _lock = ThingSpeak.getFieldAsInt(field[5]); // Field 6
       lcdValue = ThingSpeak.getFieldAsInt(field[6]); // Field 7
       buzzer = ThingSpeak.getFieldAsInt(field[7]); // Field 8
-      String createdAt = ThingSpeak.getCreatedAt(); // Created-at timestamp 
+      String createdAt = ThingSpeak.getCreatedAt(); // Created-at timestamp
     }
+    else{Serial.println("Problem reading channel. HTTP error code " + String(statusCode));}
 
-    
-    switch(lcdValue){
-      case 1:
-        ServerMSG("welcome");
-        break;
+    float temp = dht.readTemperature();
+    float humidity = dht.readHumidity();
+    Serial.print("weather   ");
+    String message = "temp:  " + String(temp) + "    humidity:  " + String(humidity);
+    Serial.println(message);delay(500);
+    if (temp >= 35){ch1 = 1;}
+    else{ch1 = 0;}
 
-      case 5:
-        ServerMSG("I am Alex");
-        break;
+    Serial.println("Ch1: " + String(ch1));
+    Serial.println("Ch2: " + String(ch2));
+    Serial.println("Ch3: " + String(ch3));
+    Serial.println("Ch4: " + String(ch4));
+    Serial.println("Temp: " + String(temp));
+    Serial.println("Lock: " + String(_lock));
+    Serial.println("Lcd Value: " + String(lcdValue));
+    Serial.println("Buzzer: " + String(buzzer));
+
+    if (ch1 == 1){digitalWrite(ch1Pin, HIGH);}
+    if (ch1 == 0){digitalWrite(ch1Pin, LOW);}
+
+    if (ch2 == 1){digitalWrite(ch2Pin, HIGH);}
+    if (ch2 == 0){digitalWrite(ch2Pin, LOW);}
+
+    if (ch3 == 1){digitalWrite(ch3Pin, HIGH);}
+    if (ch3 == 0){digitalWrite(ch3Pin, LOW);}
+
+    if (ch4 == 1){digitalWrite(ch4Pin, HIGH);}
+    if (ch4 == 0){digitalWrite(ch4Pin, LOW);}
+
+    if (buzzer == 1){digitalWrite(buzzerPin, HIGH);}
+    if (buzzer == 0){digitalWrite(buzzerPin, LOW);}
+
+     Fr.CRCE - GDSC
+     * ESP32 LED Blink Example
+     * Board ESP23 DEVKIT V1
+     * 
+     * ON Board LED GPIO 2
+
+
+    if (_lock == 1){
+      digitalWrite(lockPin, HIGH);
+      digitalWrite(buzzerPin,HIGH);
+      delay(100);
+      digitalWrite(buzzerPin,LOW);
+      }
+    if (_lock == 0){digitalWrite(lockPin, LOW);}
+
+    DisplayConditionMsg(lcdValue);
         
-      if (ch1 == 1){digitalWrite(ch1Pin, HIGH);}
-      if (ch1 == 0){digitalWrite(ch1Pin, LOW);}
-  
+    if (temp != Prevtemp){
+          Prevtemp = temp;
+          //    upload data:
+          ThingSpeak.setField(1, ch1);
+          ThingSpeak.setField(2, ch2);
+          ThingSpeak.setField(5, temp);
+          ThingSpeak.setField(6, _lock);
+          ThingSpeak.setField(7, lcdValue);
+          ThingSpeak.setField(8, buzzer);
 
-  
-      if (ch4 == 1){digitalWrite(ch4Pin, HIGH);}
-      if (ch4 == 0){digitalWrite(ch4Pin, LOW);}
-  
-      if (ch5 == 1){digitalWrite(ch5Pin, HIGH);}
-      if (ch5 == 0){digitalWrite(ch5Pin, LOW);}
-  
-      if (lock == 1){digitalWrite(lockPin, HIGH);}
-      if (lock == 0){digitalWrite(lockPin, LOW);}
+          // ----------------------------------------
+          else{
+            int y = ThingSpeak.writeField(myChannelNumber, 2, pumpStatus, myWriteAPIKey);
+            if(y == 200)  {    Serial.println("Channel - 2 update successful.");  }
+            else  {    Serial.println("Problem updating channel - 2. HTTP error code " + String(y));      }  
+            // delay(20); // Wait 10 seconds to update the channel again
+            field = true;
+          }
 
-      pinMode(ch1Pin, OUTPUT);
-      pinMode(ch2Pin, OUTPUT);
-      pinMode(ch3Pin, OUTPUT);
-      pinMode(ch4Pin, OUTPUT);
-    
-      lcd.clear();
-
-      case 6:
-        ServerMSG("I Am a AI Bot !!!");
-        break;
-
-      if (ch2 == 1){digitalWrite(ch2Pin, HIGH);}
-      if (ch2 == 0){digitalWrite(ch2Pin, LOW);}
-  
-      if (ch3 == 1){digitalWrite(ch3Pin, HIGH);}
-      if (ch3 == 0){digitalWrite(ch3Pin, LOW);}
-   }
-
+          
+          // Write to ThingSpeak. 
+          int x = ThingSpeak.writeFields(myChannelNumber, myWriteAPIKey);
+          if(x == 200){Serial.println("Channel update successful.");}
+          else{Serial.println("Problem updating channel. HTTP error code " + String(x));delay(200);}
+          delay(200);
+        }
     Serial.println();
-    delay(5000); // no need to fetch too often
-       
-}
-  // Pin Mode declaration
-
-  pinMode(ch5Pin, OUTPUT);
-  pinMode(lockPin, OUTPUT);
-  pinMode(buzzerPin, OUTPUT);
+    delay(10000); // no need to fetch too often
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}
+#include <DHT.h>
+#define DHTPIN 15
+#define DHTTYPE DHT22
+DHT dht(DHTPIN, DHTTYPE);
+#include <WiFi.h>
+#include "ThingSpeak.h" 
+// always include thingspeak header file after other header files and custom macros
