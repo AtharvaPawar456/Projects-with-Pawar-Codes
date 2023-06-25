@@ -41,3 +41,20 @@ else:
 
 if result is not None:
     print("Result:", result)
+
+'''
+=================================
+Test Case:
+=================================
+
+Enter the first number: 4
+Enter the second number: 5
+Select operation:
+1. Addition
+2. Subtraction
+3. Multiplication
+4. Division
+Enter your choice (1-4): 1
+Result: 9.0
+
+'''

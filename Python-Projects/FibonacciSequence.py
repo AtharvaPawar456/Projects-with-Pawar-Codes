@@ -15,3 +15,13 @@ def fibonacci(n):
 num_terms = int(input("Enter the number of terms: "))
 fib_sequence = fibonacci(num_terms)
 print(fib_sequence)
+
+'''
+=================================
+Test Case:
+=================================
+
+Enter the number of terms: 4
+[0, 1, 1, 2]
+
+'''
