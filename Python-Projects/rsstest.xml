@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+  <title>Apple RSS feed</title>
+  <link>https://www.example.com/apple.xml</link>
+  <description>This RSS feed is about Apple products</description>
+  
+  <item>
+    <title>Apple iPhone</title>
+    <link>http://example.com/iphone/</link>
+    <description>The iPhone is a line of smartphones designed and marketed by Apple Inc</description>
+  </item>
+  
+  <item>
+    <title>Apple MacBook</title>
+    <link>http://example.com/macbook/</link>
+    <description>The MacBook is a brand of Macintosh notebook computers designed and marketed by Apple Inc</description>
+  </item>
+</channel>
+
+</rss>
