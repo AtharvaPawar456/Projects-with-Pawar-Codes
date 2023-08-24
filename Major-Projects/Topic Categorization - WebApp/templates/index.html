@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Topic Categorization App</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Topic Categorization App</h1>
+        <form method="post">
+            <textarea name="text" rows="4" cols="50" placeholder="Enter your text..."></textarea><br>
+            <select name="category">
+                <option value="music">Music</option>
+                <option value="nature">Nature</option>
+                <!-- Add more options for other categories -->
+            </select>
+            <button type="submit">Categorize</button>
+        </form>
+        {% if predicted_category %}
+        <p>Predicted Category: {{ predicted_category }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
